@@ -604,3 +604,6 @@ textarea.input { resize: vertical; min-height: 72px; }
 
 .effortline b { color: var(--text); font-weight: 650; }
 .effortline span:last-child { flex: 1; min-width: 0; }
+
+.card.ramp { border-color: rgba(242, 193, 78, .3); background: rgba(242, 193, 78, .05); }
+.card.ramp b { color: var(--gold); }

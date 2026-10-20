@@ -98,6 +98,8 @@ function renderToday() {
   }
   html += `</div>`;
 
+  html += rampNotice(s.stats.total_workouts);
+
   if (!active) {
     html += `<button class="btn btn-primary btn-block btn-lg" data-act="start">
       ${icon("plus")}Start Day ${day.day}</button>
@@ -126,6 +128,25 @@ function renderToday() {
   }
 
   $("#panel-today").innerHTML = html;
+}
+
+/* The full plan is ~20 sets a day. Going straight to that from nothing is how
+   people end up too sore to walk by day four, so ease in over two weeks. */
+function rampNotice(workouts) {
+  if (workouts >= 14) return "";
+  const week1 = workouts < 7;
+  return `<div class="card card-pad ramp">
+    <div class="eyebrow">${icon("info")}${week1 ? "Week one" : "Week two"} &middot; ease in</div>
+    <p class="small muted" style="margin:7px 0 0">
+      Do <b>${week1 ? "2 sets" : "3 sets"}</b> per machine instead of the full 4, at a weight you
+      could clearly do more reps with. ${
+        week1
+          ? "Everything will feel too easy. That's correct &mdash; the soreness from week one shows up two days later."
+          : "One more week of this, then the full plan."
+      }
+      <span class="faint">(${workouts} of 14 workouts in.)</span>
+    </p>
+  </div>`;
 }
 
 function machineCard(m, i, active) {
@@ -285,14 +306,20 @@ function renderSchedule() {
   <div class="card card-pad">
     <div class="eyebrow">Why this split</div>
     <p class="small muted" style="margin:7px 0 10px">
-      Three to four machines a day, four sets each, keeps a session around 35 minutes. Every muscle
-      gets hit twice a week and lands between <b>8 and 12 sets per week</b> &mdash; the range where
-      growth actually happens. Day 7 is the light full-body day: the one you still show up for when
-      you're beat.
+      Push, pull and legs, each twice a week, plus a lighter catch-up day for the small muscles.
+      Four or five machines a day at four sets each &mdash; about <b>20 sets, or an hour</b> with
+      rests. Every muscle lands between <b>12 and 16 sets per week</b>, which is the range where
+      growth actually happens.
+    </p>
+    <p class="small muted" style="margin:0 0 10px">
+      The hour is deliberate, not a ceiling you should push past. At seven days a week the thing
+      that limits you is recovery, not time. Past roughly 20 sets per muscle per week you pile up
+      fatigue faster than you clear it and the extra work stops paying.
     </p>
     <p class="small muted" style="margin:0">
-      Four sets on a few machines beats six sets on one. By set five you're too fatigued for the
-      work to count for much, so extra volume goes to another day instead of the end of this one.
+      Spreading sets across two or three days beats cramming them into one &mdash; late sets in a
+      long session are done tired and count for less. Doing cardio? Afterward, or later in the day.
+      Never before.
     </p>
   </div>`;
 

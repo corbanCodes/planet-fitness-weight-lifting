@@ -199,46 +199,49 @@ MACHINES_BY_SLUG = {m["slug"]: m for m in MACHINES}
 ROTATION = [
     {
         "day": 1,
-        "title": "Legs: Thighs & Calves",
-        "focus": "Pushing with your legs",
-        "machines": ["seated-leg-press", "leg-extension", "calf-extension"],
+        "title": "Push: Chest, Shoulders, Triceps",
+        "focus": "Everything that moves weight away from you",
+        "machines": ["chest-press", "pectoral-fly", "shoulder-press",
+                     "triceps-press", "triceps-extension"],
     },
     {
         "day": 2,
-        "title": "Chest & Triceps",
-        "focus": "Everything that pushes away from you",
-        "machines": ["chest-press", "pectoral-fly", "triceps-press"],
-    },
-    {
-        "day": 3,
-        "title": "Back & Biceps",
-        "focus": "Everything that pulls toward you",
+        "title": "Pull: Back, Rear Delts, Biceps",
+        "focus": "Everything that pulls weight toward you",
         "machines": ["pull-down", "row-press", "rear-deltoid-fly", "biceps-curl"],
     },
     {
+        "day": 3,
+        "title": "Legs & Lower Back",
+        "focus": "Front and back of the legs, plus the muscles that hold you upright",
+        "machines": ["seated-leg-press", "leg-extension", "seated-leg-curl",
+                     "calf-extension", "back-extension"],
+    },
+    {
         "day": 4,
-        "title": "Shoulders & Lower Back",
-        "focus": "Overhead work plus the posture muscles",
-        "machines": ["shoulder-press", "rear-deltoid-fly", "back-extension"],
+        "title": "Push: Round Two",
+        "focus": "The same pattern as day 1, slightly shorter -- frequency is what builds it",
+        "machines": ["chest-press", "pectoral-fly", "shoulder-press", "triceps-press"],
     },
     {
         "day": 5,
-        "title": "Legs: Hamstrings & Lower Back",
-        "focus": "The whole back side of you, which day 1 mostly skips",
-        "machines": ["seated-leg-curl", "seated-leg-press", "calf-extension",
-                     "back-extension"],
+        "title": "Pull: Round Two",
+        "focus": "Second pulling session of the week",
+        "machines": ["pull-down", "row-press", "rear-deltoid-fly", "biceps-curl"],
     },
     {
         "day": 6,
-        "title": "Arms",
-        "focus": "Biceps and triceps on their own, nothing else competing",
-        "machines": ["biceps-curl", "triceps-extension", "triceps-press"],
+        "title": "Legs: Hamstring Lead",
+        "focus": "Legs again, starting with the back of them so they get the fresh effort",
+        "machines": ["seated-leg-curl", "seated-leg-press", "leg-extension",
+                     "calf-extension", "back-extension"],
     },
     {
         "day": 7,
-        "title": "Full Body, Light",
-        "focus": "One of everything at an easy weight -- the recovery day you still show up for",
-        "machines": ["chest-press", "pull-down", "seated-leg-curl", "shoulder-press"],
+        "title": "Catch-Up Day",
+        "focus": "A lighter day for the small muscles that get shortchanged everywhere else",
+        "machines": ["shoulder-press", "rear-deltoid-fly", "seated-leg-curl",
+                     "biceps-curl", "calf-extension"],
     },
 ]
 
@@ -292,6 +295,27 @@ GLOSSARY = [
                 "weight should be heavy enough that stopping at 10 feels earned, but "
                 "light enough that you could reach 12. Hit 12 on every set and it's "
                 "time to add weight.",
+    },
+    {
+        "term": "Ramping up",
+        "short": "Your first two weeks should feel too easy",
+        "long": "This plan is about 20 sets a day. Going from nothing straight to "
+                "that, seven days a week, is how people end up too sore to walk by "
+                "day four and quit by day ten. For your first week do 2 sets per "
+                "machine instead of 4, with weights you could clearly do more reps "
+                "with. Second week, 3 sets. Third week, the full plan. You lose "
+                "nothing by ramping -- the muscle you build in month six doesn't "
+                "care how hard week one was, but your ability to still be doing this "
+                "in month six cares a great deal.",
+    },
+    {
+        "term": "Frequency",
+        "short": "How often a muscle gets trained",
+        "long": "How many times a week you hit a muscle, separate from how many sets "
+                "you do. Spreading 16 sets across two or three days beats cramming "
+                "them into one, because the later sets of a long session are done "
+                "tired and count for less. That's why this plan runs push, pull and "
+                "legs twice a week instead of a single 'chest day'.",
     },
     {
         "term": "Reps in reserve (RIR)",
