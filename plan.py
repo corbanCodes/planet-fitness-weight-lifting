@@ -15,7 +15,7 @@ MACHINES = [
         "slug": "seated-leg-press",
         "name": "Seated Leg Press",
         "muscles": "Thighs, glutes",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 10,
         "rep_high": 12,
         "setup": "Back flat against the pad, feet about shoulder width on the plate, "
@@ -28,7 +28,7 @@ MACHINES = [
         "slug": "leg-extension",
         "name": "Leg Extension",
         "muscles": "Front of the thighs (quads)",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 10,
         "rep_high": 12,
         "setup": "Knees lined up with the machine's pivot point, shin pad just above "
@@ -41,7 +41,7 @@ MACHINES = [
         "slug": "seated-leg-curl",
         "name": "Seated Leg Curl",
         "muscles": "Back of the thighs (hamstrings)",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 10,
         "rep_high": 12,
         "setup": "Thigh pad snug across your legs, pad resting on the back of your "
@@ -54,7 +54,7 @@ MACHINES = [
         "slug": "calf-extension",
         "name": "Calf Extension",
         "muscles": "Calves",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 15,
         "rep_high": 20,
         "setup": "Balls of your feet on the platform, heels hanging off the edge.",
@@ -66,7 +66,7 @@ MACHINES = [
         "slug": "chest-press",
         "name": "Chest Press",
         "muscles": "Chest, front shoulders, triceps",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 8,
         "rep_high": 12,
         "setup": "Seat height so the handles sit at mid-chest, not up by your neck.",
@@ -78,7 +78,7 @@ MACHINES = [
         "slug": "pectoral-fly",
         "name": "Pectoral Fly",
         "muscles": "Chest",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 10,
         "rep_high": 12,
         "setup": "Elbows level with your shoulders on the arm pads, back flat against "
@@ -91,7 +91,7 @@ MACHINES = [
         "slug": "rear-deltoid-fly",
         "name": "Rear Deltoid Fly",
         "muscles": "Back of the shoulders, upper back",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 12,
         "rep_high": 15,
         "setup": "Usually the same machine as the pectoral fly, flipped around -- chest "
@@ -104,7 +104,7 @@ MACHINES = [
         "slug": "pull-down",
         "name": "Pull Down",
         "muscles": "Back (lats), biceps",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 8,
         "rep_high": 12,
         "setup": "Thigh pad locked down so you don't lift off the seat. Wide grip on "
@@ -117,7 +117,7 @@ MACHINES = [
         "slug": "row-press",
         "name": "Row Press",
         "muscles": "Mid-back, biceps",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 8,
         "rep_high": 12,
         "setup": "Chest against the pad, handles at about belly-button height.",
@@ -129,7 +129,7 @@ MACHINES = [
         "slug": "shoulder-press",
         "name": "Shoulder Press",
         "muscles": "Shoulders, triceps",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 8,
         "rep_high": 12,
         "setup": "Seat set so the handles start at about ear height.",
@@ -153,7 +153,7 @@ MACHINES = [
         "slug": "biceps-curl",
         "name": "Biceps Curl",
         "muscles": "Front of the upper arms",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 10,
         "rep_high": 12,
         "setup": "Upper arms flat on the pad, armpits snug against the top of it.",
@@ -165,7 +165,7 @@ MACHINES = [
         "slug": "triceps-extension",
         "name": "Triceps Extension",
         "muscles": "Back of the upper arms",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 10,
         "rep_high": 12,
         "setup": "Elbows planted on the pad, hands on the handles up near your head.",
@@ -177,7 +177,7 @@ MACHINES = [
         "slug": "triceps-press",
         "name": "Triceps Press",
         "muscles": "Back of the upper arms, chest",
-        "target_sets": 3,
+        "target_sets": 4,
         "rep_low": 10,
         "rep_high": 12,
         "setup": "Seat set so the handles are at about chest height, elbows tucked in "
@@ -213,7 +213,7 @@ ROTATION = [
         "day": 3,
         "title": "Back & Biceps",
         "focus": "Everything that pulls toward you",
-        "machines": ["pull-down", "row-press", "biceps-curl"],
+        "machines": ["pull-down", "row-press", "rear-deltoid-fly", "biceps-curl"],
     },
     {
         "day": 4,
@@ -223,9 +223,10 @@ ROTATION = [
     },
     {
         "day": 5,
-        "title": "Legs: Hamstrings & Calves",
-        "focus": "The back of your legs, which day 1 mostly skips",
-        "machines": ["seated-leg-curl", "seated-leg-press", "calf-extension"],
+        "title": "Legs: Hamstrings & Lower Back",
+        "focus": "The whole back side of you, which day 1 mostly skips",
+        "machines": ["seated-leg-curl", "seated-leg-press", "calf-extension",
+                     "back-extension"],
     },
     {
         "day": 6,
@@ -237,7 +238,7 @@ ROTATION = [
         "day": 7,
         "title": "Full Body, Light",
         "focus": "One of everything at an easy weight -- the recovery day you still show up for",
-        "machines": ["chest-press", "pull-down", "leg-extension", "shoulder-press"],
+        "machines": ["chest-press", "pull-down", "seated-leg-curl", "shoulder-press"],
     },
 ]
 
@@ -293,6 +294,25 @@ GLOSSARY = [
                 "time to add weight.",
     },
     {
+        "term": "Reps in reserve (RIR)",
+        "short": "How many reps you had left",
+        "long": "The most useful number in lifting, and it isn't written on the "
+                "machine. At the end of a set, ask: could I have done 2 more good "
+                "reps? If yes, that's 2 reps in reserve, and that's where most of "
+                "your sets should land. Stop one rep short on the last set of each "
+                "machine. Going all the way to zero on every set costs you a lot of "
+                "recovery and buys you almost nothing.",
+    },
+    {
+        "term": "Junk volume",
+        "short": "Extra sets that don't do anything",
+        "long": "Sets piled onto the same machine after you're already tired. Set "
+                "six of a leg press is done with so much fatigue that it adds "
+                "soreness without adding much growth. This is why the plan is 4 sets "
+                "on a few machines instead of 6 sets on one -- and why extra work "
+                "goes to a different day, not the end of today's.",
+    },
+    {
         "term": "Warm-up set",
         "short": "One easy set first",
         "long": "A set at roughly half your usual weight for 10 easy reps before you "
@@ -324,8 +344,11 @@ GLOSSARY = [
     {
         "term": "Failure",
         "short": "Can't do another rep",
-        "long": "The point where you physically can't complete another clean rep. You "
-                "generally want to stop one or two reps short of it, not at it.",
+        "long": "The point where you physically can't complete another clean rep. "
+                "Training to failure on every set grows no more muscle than stopping "
+                "a couple of reps short, but it costs far more recovery and carries "
+                "more injury risk -- so it's a tool, not a default. Stay a rep or two "
+                "away on most sets. Never chase it on the leg press.",
     },
     {
         "term": "Tempo",
@@ -354,6 +377,16 @@ GLOSSARY = [
         "long": "Sets times reps times weight. It's the number that tells you whether "
                 "a workout was actually harder than the last one, even if the weight "
                 "on one machine stayed put. This app totals it for you.",
+    },
+    {
+        "term": "Weekly sets",
+        "short": "How much a muscle gets per week",
+        "long": "The number that actually drives growth: how many hard sets a muscle "
+                "gets across the whole week, not in one session. Somewhere around 10 "
+                "to 20 is the productive range. This rotation puts every muscle "
+                "between 8 and 12, which is a sensible place to live for your first "
+                "several months. If you want more later, add a set per machine "
+                "before you add anything else.",
     },
     {
         "term": "Plateau",

@@ -6,8 +6,13 @@ close it whenever.
 
 ## What it does
 
-- **A 7-day rotation over all 14 machines**, 3–4 machines a day, every muscle
-  group hit about twice a week. Defined in [`plan.py`](plan.py).
+- **A 7-day rotation over all 14 machines**, 3–4 machines a day at 4 sets each,
+  every muscle hit twice a week and landing between 8 and 12 sets per week — the
+  range where growth actually happens. Sessions run 28–40 minutes. Defined in
+  [`plan.py`](plan.py).
+- **An effort target on every machine**, not just a set and rep count: stop about
+  2 reps short of failure on the working sets, 1 short on the last one. Training
+  every set to failure costs recovery without buying growth.
 - **The rotation is a queue, not a calendar.** It always serves the day after the
   last one you finished, so missing a day never throws it out of order. If the
   app and real life disagree, the Schedule tab resets it in two taps.

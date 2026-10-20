@@ -145,6 +145,11 @@ function machineCard(m, i, active) {
 
     <div class="coach">${icon("bulb")}
       <div><b>${esc(m.suggestion.headline)}</b><p>${esc(m.suggestion.detail)}</p></div>
+    </div>
+
+    <div class="lastline effortline"><span class="k">How hard</span>
+      <span>Sets 1&ndash;${m.target_sets - 1}: stop with about <b>2 reps left</b> in you.
+      Last set: stop with <b>1</b>. Going to total failure every set isn't the goal.</span>
     </div>`;
 
   if (m.last) {
@@ -279,10 +284,15 @@ function renderSchedule() {
   html += `</div>
   <div class="card card-pad">
     <div class="eyebrow">Why this split</div>
-    <p class="small muted" style="margin:7px 0 0">
-      Three to four machines a day keeps a session to about 30 minutes, and every muscle group gets
-      hit roughly twice a week with two or more days of recovery in between. Day 7 is the light
-      full-body day &mdash; the one you still show up for when you're beat.
+    <p class="small muted" style="margin:7px 0 10px">
+      Three to four machines a day, four sets each, keeps a session around 35 minutes. Every muscle
+      gets hit twice a week and lands between <b>8 and 12 sets per week</b> &mdash; the range where
+      growth actually happens. Day 7 is the light full-body day: the one you still show up for when
+      you're beat.
+    </p>
+    <p class="small muted" style="margin:0">
+      Four sets on a few machines beats six sets on one. By set five you're too fatigued for the
+      work to count for much, so extra volume goes to another day instead of the end of this one.
     </p>
   </div>`;
 

@@ -601,3 +601,6 @@ textarea.input { resize: vertical; min-height: 72px; }
 }
 
 .hist .btn-ghost { font-size: 12.5px; padding: 4px 0; }
+
+.effortline b { color: var(--text); font-weight: 650; }
+.effortline span:last-child { flex: 1; min-width: 0; }
