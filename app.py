@@ -6,10 +6,11 @@ On Railway:    gunicorn app:app   (see Procfile)
 
 import json
 import os
+import tempfile
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_file
 
 import db
 import plan
@@ -495,6 +496,44 @@ def api_machine(slug):
                 for d, s in by_date.items()
             ],
         }
+    )
+
+
+
+# --- backup ---------------------------------------------------------------
+# Two ways to get everything out. Neither touches the data.
+
+@app.get("/api/export")
+def api_export():
+    """Every table, as JSON. Human-readable and enough to rebuild from."""
+    with db.connect() as conn:
+        tables = [
+            r["name"] for r in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' "
+                "AND name NOT LIKE 'sqlite_%' ORDER BY name"
+            )
+        ]
+        dump = {
+            t: [dict(r) for r in conn.execute(f'SELECT * FROM "{t}"')] for t in tables
+        }
+    dump["_exported_at"] = now().isoformat(timespec="seconds")
+    return jsonify(dump)
+
+
+@app.get("/api/export.db")
+def api_export_db():
+    """The SQLite file itself, as a consistent snapshot (WAL folded in)."""
+    tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+    tmp.close()
+    os.unlink(tmp.name)  # VACUUM INTO refuses to overwrite
+    with db.connect() as conn:
+        conn.execute("VACUUM INTO ?", (tmp.name,))
+    stamp = now().strftime("%Y%m%d-%H%M")
+    return send_file(
+        tmp.name,
+        as_attachment=True,
+        download_name=f"lift-log-{stamp}.db",
+        mimetype="application/vnd.sqlite3",
     )
 
 
