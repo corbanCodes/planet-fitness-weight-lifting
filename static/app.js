@@ -10,6 +10,7 @@ let FOOD = null;
 let TAB = "today";
 const INPUTS = {};         // slug -> {weight, reps} typed but not yet logged
 const OPEN_HOWTO = new Set();
+const RAMP_DISABLED = true;
 let NOTES = "";
 
 /* --- tiny helpers ------------------------------------------------------ */
@@ -135,7 +136,9 @@ function renderToday() {
 /* The full plan is ~20 sets a day. Going straight to that from nothing is how
    people end up too sore to walk by day four, so ease in over two weeks. */
 function rampNotice(workouts) {
-  if (workouts >= 14) return "";
+  // Corban did six straight days at full sets and felt fine, so the ramp
+  // never applied. Left in place in case the plan is ever restarted from zero.
+  if (workouts >= 14 || RAMP_DISABLED) return "";
   const week1 = workouts < 7;
   return `<div class="card card-pad ramp">
     <div class="eyebrow">${icon("info")}${week1 ? "Week one" : "Week two"} &middot; ease in</div>
