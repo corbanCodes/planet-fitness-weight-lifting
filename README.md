@@ -6,16 +6,24 @@ close it whenever.
 
 ## What it does
 
-- **A 7-day rotation over all 14 machines** — push, pull and legs twice a week
-  each, plus a lighter catch-up day for the small muscles. Four or five machines
-  a day at four sets each: about 20 sets, or an hour with rests. Every muscle
-  lands at 12–16 sets per week, trained 2–3× a week. Defined in [`plan.py`](plan.py).
+- **A 7-day rotation over all 19 machines** — push, pull and legs twice a week
+  each, plus a core day. Five machines a day at 3–4 sets: about 19 sets, or 50
+  minutes with rests. No big muscle is ever trained on back-to-back days; the only
+  things that land on consecutive days are abs, rear delts, biceps and hip
+  abductors, which recover overnight. `test_plan.py` enforces all of this.
+- **Assisted machines handled right.** On the pull-up / dip machine the number is
+  how much help you get, so progress is a *lower* number — the app tracks and
+  coaches it that way.
 - **An effort target on every machine**, not just sets and reps: stop about 2 reps
-  short of failure on the working sets, 1 short on the last. Training every set to
-  failure costs recovery without buying growth.
+  short of failure on the working sets, 1 short on the last.
 - **A two-week ramp** for the first 14 workouts — 2 sets per machine, then 3, then
-  the full plan — so going from nothing to 20 sets a day doesn't end the experiment
-  in week one.
+  the full plan.
+- **Weight tab**: daily weigh-ins, 7-day rolling average, change since start in lb
+  and %, weekly rate, and a pace-to-goal date. Trend chart. Goal is editable.
+- **Food tab**: calories / protein / carbs / fat per day, every field optional.
+  7-day averages and a protein-target hit count.
+- **Backups**: `/api/export.db` is the SQLite file (consistent snapshot) and
+  `/api/export` is everything as JSON. Buttons for both on the Log tab.
 - **The rotation is a queue, not a calendar.** It always serves the day after the
   last one you finished, so missing a day never throws it out of order. If the
   app and real life disagree, the Schedule tab resets it in two taps.
@@ -80,6 +88,7 @@ it.
 | File | What's in it |
 |------|--------------|
 | `plan.py` | Machines, the 7-day rotation, glossary. The only file worth editing. |
+| `test_plan.py` | The trainer's checklist the rotation must pass. Run it after editing `plan.py`. |
 | `app.py` | Flask routes, the JSON API, the "add weight?" logic |
 | `db.py` | SQLite schema and connection |
 | `templates/index.html` | Page shell and SVG icon set |

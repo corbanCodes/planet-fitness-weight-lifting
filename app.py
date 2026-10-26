@@ -8,6 +8,7 @@ import json
 import os
 import tempfile
 from datetime import date, datetime, timedelta
+from statistics import mean
 from zoneinfo import ZoneInfo
 
 from flask import Flask, jsonify, render_template, request, send_file
@@ -92,6 +93,8 @@ def machine_payload(slug, conn):
 
 def suggest(m, last):
     """Progressive overload in one sentence of plain English."""
+    if m.get("assisted"):
+        return suggest_assisted(m, last)
     if not last or not last["sets"]:
         return {
             "weight": None,
@@ -133,9 +136,57 @@ def suggest(m, last):
     }
 
 
+def suggest_assisted(m, last):
+    """Same logic, flipped: the number is how much the machine helps, so
+    progress is a LOWER number."""
+    if not last or not last["sets"]:
+        return {
+            "weight": None,
+            "headline": "First time on this one",
+            "detail": "Set the assist so you can get about 8 clean reps. More weight "
+                      "on the stack means MORE help. Over the months you'll take "
+                      "help away, 10 lb at a time.",
+        }
+    assist = min(s["weight"] for s in last["sets"])
+    reps = [s["reps"] for s in last["sets"]]
+    enough_sets = len(last["sets"]) >= m["target_sets"]
+    maxed = all(r >= m["rep_high"] for r in reps)
+
+    if maxed and enough_sets:
+        new = max(0, assist - m["jump"])
+        if assist == 0:
+            return {
+                "weight": 0,
+                "headline": "Bodyweight, every set -- you own this one",
+                "detail": f"You hit {m['rep_high']} reps on all sets with no help at all. "
+                          "Keep adding reps; that's the progression from here.",
+            }
+        return {
+            "weight": new,
+            "headline": f"Drop the assist to {fmt_weight(new)} lb",
+            "detail": f"You hit {m['rep_high']} reps on every set with {fmt_weight(assist)} lb "
+                      f"of help, so you've earned less of it. Reps will drop at first.",
+        }
+    if min(reps) < m["rep_low"]:
+        return {
+            "weight": assist,
+            "headline": f"Keep the assist at {fmt_weight(assist)} lb",
+            "detail": f"One set came in under {m['rep_low']} reps. Hold here until you can "
+                      f"get {m['rep_low']} on all {m['target_sets']} sets.",
+        }
+    return {
+        "weight": assist,
+        "headline": f"Keep the assist at {fmt_weight(assist)} lb",
+        "detail": f"Squeeze out a rep or two more than last time. Once every set hits "
+                  f"{m['rep_high']}, you take {m['jump']} lb of help away.",
+    }
+
+
 def best_ever(slug, conn):
+    """Heaviest weight ever -- or for an assisted machine, the least help."""
+    agg = "MIN" if plan.MACHINES_BY_SLUG[slug].get("assisted") else "MAX"
     row = conn.execute(
-        """SELECT MAX(t.weight) AS w FROM sets t
+        f"""SELECT {agg}(t.weight) AS w FROM sets t
            JOIN sessions s ON s.id = t.session_id
            WHERE t.machine_slug = ? AND s.finished_at IS NOT NULL""",
         (slug,),
@@ -167,6 +218,7 @@ def active_session(conn):
     return {
         "id": row["id"],
         "day": row["day"],
+        "title": session_title(row),
         "workout_date": row["workout_date"],
         "date_label": friendly_date(row["workout_date"]),
         "notes": row["notes"],
@@ -174,6 +226,15 @@ def active_session(conn):
         "total_sets": len(sets),
         "volume": sum(s["weight"] * s["reps"] for s in sets),
     }
+
+
+def session_title(row):
+    """Stored snapshot first; fall back to today's rotation for old rows."""
+    stored = row["title"] if "title" in row.keys() else None
+    if stored:
+        return stored
+    day = plan.ROTATION_BY_DAY.get(row["day"])
+    return day["title"] if day else f"Day {row['day']}"
 
 
 def last_completed_day(conn):
@@ -229,6 +290,11 @@ def build_state():
         last_day = last_completed_day(conn)
         up_next_day = active["day"] if active else plan.next_day_after(last_day)
         day_def = plan.ROTATION_BY_DAY[up_next_day]
+        machines = list(day_def["machines"])
+        if active:
+            # a workout in progress shows every machine it already has sets on,
+            # even one the rotation no longer schedules -- nothing logged goes dark
+            machines += [m for m in active["logged"] if m not in machines]
 
         totals = conn.execute(
             "SELECT COUNT(*) AS n FROM sessions WHERE finished_at IS NOT NULL"
@@ -244,11 +310,12 @@ def build_state():
             "today": today_str(),
             "up_next": {
                 "day": day_def["day"],
-                "title": day_def["title"],
+                "title": active["title"] if active else day_def["title"],
                 "focus": day_def["focus"],
-                "machines": [machine_payload(s, conn) for s in day_def["machines"]],
+                "machines": [machine_payload(s, conn) for s in machines],
             },
             "active": active,
+            "settings": settings(),
             "last_completed_day": last_day,
             "day_history": day_history(conn),
             "stats": {
@@ -305,8 +372,10 @@ def api_start():
 
         workout_date = parse_date(body.get("workout_date"))
         cur = conn.execute(
-            "INSERT INTO sessions (day, workout_date, started_at) VALUES (?, ?, ?)",
-            (day, workout_date, now().isoformat(timespec="seconds")),
+            "INSERT INTO sessions (day, title, workout_date, started_at) "
+            "VALUES (?, ?, ?, ?)",
+            (day, plan.ROTATION_BY_DAY[day]["title"], workout_date,
+             now().isoformat(timespec="seconds")),
         )
         session_id = cur.lastrowid
     return jsonify({"ok": True, "session_id": session_id, "state": build_state()})
@@ -440,7 +509,7 @@ def api_history():
                 {
                     "id": r["id"],
                     "day": r["day"],
-                    "title": plan.ROTATION_BY_DAY[r["day"]]["title"],
+                    "title": session_title(r),
                     "date": r["workout_date"],
                     "date_label": friendly_date(r["workout_date"]),
                     "notes": r["notes"],
@@ -498,6 +567,211 @@ def api_machine(slug):
         }
     )
 
+
+
+# --- settings -------------------------------------------------------------
+
+DEFAULT_SETTINGS = {"goal_weight": 195, "protein_target": 170}
+
+
+def settings():
+    out = {}
+    for key, default in DEFAULT_SETTINGS.items():
+        raw = db.get_state(key)
+        try:
+            out[key] = float(raw) if raw is not None else default
+        except ValueError:
+            out[key] = default
+        if float(out[key]).is_integer():
+            out[key] = int(out[key])
+    return out
+
+
+@app.post("/api/settings")
+def api_settings():
+    body = request.get_json(silent=True) or {}
+    for key in DEFAULT_SETTINGS:
+        if key in body:
+            try:
+                value = float(body[key])
+            except (TypeError, ValueError):
+                return jsonify({"error": f"{key} needs to be a number."}), 400
+            if not 0 < value < 1000:
+                return jsonify({"error": f"{key} looks like a typo."}), 400
+            db.set_state(key, value)
+    return jsonify({"ok": True, "settings": settings()})
+
+
+# --- bodyweight -----------------------------------------------------------
+
+def weight_stats(rows, goal):
+    """rows ascending by date. Trend on 7-day averages, never single weigh-ins."""
+    if not rows:
+        return {"count": 0}
+    by_date = {r["date"]: r["lbs"] for r in rows}
+    dates = sorted(by_date)
+
+    def avg7(iso):
+        end = date.fromisoformat(iso)
+        start = (end - timedelta(days=6)).isoformat()
+        window = [by_date[d] for d in dates if start <= d <= iso]
+        return round(mean(window), 1), len(window)
+
+    first_date, latest_date = dates[0], dates[-1]
+    start_lbs = by_date[first_date]
+    current, n_window = avg7(latest_date)
+    change = round(current - start_lbs, 1)
+    pct = round(change / start_lbs * 100, 1) if start_lbs else 0
+
+    # weekly rate: this week's average vs the average ending a week earlier
+    rate = None
+    week_ago = (date.fromisoformat(latest_date) - timedelta(days=7)).isoformat()
+    earlier = [d for d in dates if d <= week_ago]
+    if earlier and (date.fromisoformat(latest_date) - date.fromisoformat(first_date)).days >= 10:
+        prev, _ = avg7(earlier[-1])
+        rate = round(current - prev, 1)
+
+    eta = None
+    if goal and rate and rate < 0 and current > goal:
+        weeks = (current - goal) / -rate
+        eta = {
+            "weeks": round(weeks),
+            "date": (now().date() + timedelta(weeks=weeks)).isoformat(),
+        }
+
+    return {
+        "count": len(rows),
+        "latest": by_date[latest_date],
+        "latest_date": latest_date,
+        "current": current,          # 7-day average
+        "window": n_window,
+        "start": start_lbs,
+        "start_date": first_date,
+        "change": change,
+        "pct": pct,
+        "rate": rate,                # lb per week, negative = losing
+        "goal": goal,
+        "to_goal": round(current - goal, 1) if goal else None,
+        "eta": eta,
+        "days_tracked": (date.fromisoformat(latest_date) - date.fromisoformat(first_date)).days + 1,
+    }
+
+
+@app.get("/api/weight")
+def api_weight():
+    with db.connect() as conn:
+        rows = [dict(r) for r in conn.execute(
+            "SELECT id, date, lbs, note FROM bodyweight ORDER BY date"
+        )]
+    for r in rows:
+        r["date_label"] = friendly_date(r["date"])
+    goal = settings()["goal_weight"]
+    return jsonify({"entries": rows, "stats": weight_stats(rows, goal), "goal": goal})
+
+
+@app.post("/api/weight")
+def api_weight_add():
+    body = request.get_json(silent=True) or {}
+    try:
+        lbs = round(float(body.get("lbs")), 1)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Weight needs to be a number."}), 400
+    if not 50 < lbs < 1000:
+        return jsonify({"error": "That weight looks like a typo."}), 400
+    d = parse_date(body.get("date"))
+    with db.connect() as conn:
+        conn.execute(
+            "INSERT INTO bodyweight (date, lbs, note, created_at) VALUES (?, ?, ?, ?) "
+            "ON CONFLICT(date) DO UPDATE SET lbs = excluded.lbs, note = excluded.note",
+            (d, lbs, (body.get("note") or "").strip()[:200],
+             now().isoformat(timespec="seconds")),
+        )
+    return api_weight()
+
+
+@app.delete("/api/weight/<int:row_id>")
+def api_weight_delete(row_id):
+    with db.connect() as conn:
+        conn.execute("DELETE FROM bodyweight WHERE id = ?", (row_id,))
+    return api_weight()
+
+
+# --- nutrition ------------------------------------------------------------
+
+MACROS = ("calories", "protein", "carbs", "fat")
+
+
+def food_stats(rows, target):
+    """Averages over the last 7 calendar days, counting only what was logged."""
+    if not rows:
+        return {"count": 0}
+    cutoff = (now().date() - timedelta(days=6)).isoformat()
+    recent = [r for r in rows if r["date"] >= cutoff]
+    out = {"count": len(rows), "recent_days": len(recent), "target": target}
+    for k in MACROS:
+        vals = [r[k] for r in recent if r[k] is not None]
+        out[f"avg_{k}"] = round(mean(vals)) if vals else None
+    logged_p = [r for r in recent if r["protein"] is not None]
+    out["protein_days"] = len(logged_p)
+    out["protein_hits"] = sum(1 for r in logged_p if r["protein"] >= target) if target else None
+    all_p = [r["protein"] for r in rows if r["protein"] is not None]
+    out["avg_protein_all"] = round(mean(all_p)) if all_p else None
+    return out
+
+
+@app.get("/api/food")
+def api_food():
+    with db.connect() as conn:
+        rows = [dict(r) for r in conn.execute(
+            "SELECT id, date, calories, protein, carbs, fat, note FROM nutrition ORDER BY date"
+        )]
+    for r in rows:
+        r["date_label"] = friendly_date(r["date"])
+    target = settings()["protein_target"]
+    return jsonify({
+        "entries": list(reversed(rows)),
+        "stats": food_stats(rows, target),
+        "target": target,
+    })
+
+
+@app.post("/api/food")
+def api_food_add():
+    body = request.get_json(silent=True) or {}
+    values = {}
+    for k in MACROS:
+        raw = body.get(k)
+        if raw in (None, ""):
+            values[k] = None
+            continue
+        try:
+            v = int(round(float(raw)))
+        except (TypeError, ValueError):
+            return jsonify({"error": f"{k.capitalize()} needs to be a number (or blank)."}), 400
+        if not 0 <= v <= 20000:
+            return jsonify({"error": f"{k.capitalize()} looks like a typo."}), 400
+        values[k] = v
+    if all(v is None for v in values.values()):
+        return jsonify({"error": "Log at least one number."}), 400
+    d = parse_date(body.get("date"))
+    with db.connect() as conn:
+        conn.execute(
+            "INSERT INTO nutrition (date, calories, protein, carbs, fat, note, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?) "
+            "ON CONFLICT(date) DO UPDATE SET calories = excluded.calories, "
+            "protein = excluded.protein, carbs = excluded.carbs, fat = excluded.fat, "
+            "note = excluded.note",
+            (d, values["calories"], values["protein"], values["carbs"], values["fat"],
+             (body.get("note") or "").strip()[:300], now().isoformat(timespec="seconds")),
+        )
+    return api_food()
+
+
+@app.delete("/api/food/<int:row_id>")
+def api_food_delete(row_id):
+    with db.connect() as conn:
+        conn.execute("DELETE FROM nutrition WHERE id = ?", (row_id,))
+    return api_food()
 
 
 # --- backup ---------------------------------------------------------------

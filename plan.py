@@ -94,8 +94,9 @@ MACHINES = [
         "target_sets": 4,
         "rep_low": 12,
         "rep_high": 15,
-        "setup": "Usually the same machine as the pectoral fly, flipped around -- chest "
-                 "against the pad, arms out front.",
+        "setup": "It's the pectoral fly machine used backwards: sit facing INTO the pad, "
+                 "chest against it, and swing the arms around so the handles start in "
+                 "front of you. Seat height so the handles are at shoulder level.",
         "cue": "Sweep your arms out and back like opening curtains. Squeeze your "
                "shoulder blades together. Go light here.",
         "jump": 5,
@@ -141,6 +142,7 @@ MACHINES = [
         "slug": "back-extension",
         "name": "Back Extension",
         "muscles": "Lower back, glutes",
+        "retired": True,   # machine doesn't fit; kept so logged workouts still display
         "target_sets": 3,
         "rep_low": 12,
         "rep_high": 15,
@@ -186,6 +188,87 @@ MACHINES = [
                "close to your ribs.",
         "jump": 5,
     },
+    {
+        "slug": "assisted-pull-up",
+        "name": "Assisted Pull-Up",
+        "muscles": "Back (lats), biceps, grip",
+        "assisted": True,
+        "target_sets": 4,
+        "rep_low": 6,
+        "rep_high": 10,
+        "setup": "Kneel on the pad, hands wide on the top bar. The weight you pick is "
+                 "how much the machine HELPS you -- more weight means easier.",
+        "cue": "Pull until your chin clears the bar, lower all the way until your arms "
+               "are straight. The goal over months is less assistance, not more reps.",
+        "jump": 10,
+    },
+    {
+        "slug": "assisted-dip",
+        "name": "Assisted Dip",
+        "muscles": "Chest, triceps, front shoulders",
+        "assisted": True,
+        "target_sets": 4,
+        "rep_low": 8,
+        "rep_high": 12,
+        "setup": "Same machine as the pull-up, hands on the low dip bars. Lean slightly "
+                 "forward for more chest, stay upright for more triceps.",
+        "cue": "Lower until your upper arms are about level with the floor, press back "
+               "up. Don't go deeper than that -- it's hard on the shoulders.",
+        "jump": 10,
+    },
+    {
+        "slug": "ab-crunch",
+        "name": "Ab Crunch",
+        "muscles": "Abs",
+        "target_sets": 3,
+        "rep_low": 12,
+        "rep_high": 15,
+        "setup": "Pads against your upper chest or hands on the handles, feet hooked "
+                 "under the rollers if there are any.",
+        "cue": "Curl your ribs toward your hips like you're folding in half. Slow on the "
+               "way back. If you're pulling with your arms, the weight's too heavy.",
+        "jump": 10,
+    },
+    {
+        "slug": "torso-rotation",
+        "name": "Torso Rotation",
+        "muscles": "Obliques (sides of the waist)",
+        "target_sets": 3,
+        "rep_low": 12,
+        "rep_high": 15,
+        "setup": "Chest against the pad, knees locked in. Count your reps per side, then "
+                 "switch -- that's one set.",
+        "cue": "Turn from the waist, not the arms, and only as far as feels natural. "
+               "This one wants light weight and control, not a grind.",
+        "jump": 5,
+    },
+    {
+        "slug": "hip-abduction",
+        "name": "Hip Abduction",
+        "muscles": "Outer hips and glutes",
+        "target_sets": 4,
+        "rep_low": 12,
+        "rep_high": 15,
+        "setup": "Pads on the OUTSIDE of your knees, legs start together. (Flipped to "
+                 "the inside it's hip adduction -- inner thigh -- if you want it.)",
+        "cue": "Push your knees apart against the pads, pause, then let them come back "
+               "slowly. Sit up tall; don't lean back to cheat it open.",
+        "jump": 10,
+    },
+    {
+        "slug": "glute-kickback",
+        "name": "Glute Kickback",
+        "muscles": "Glutes, hamstrings",
+        "target_sets": 4,
+        "rep_low": 10,
+        "rep_high": 12,
+        "setup": "One foot on the platform, the other planted, hands on the grips. Reps "
+                 "are per leg -- do both before you call it a set.",
+        "cue": "Drive the platform back and slightly up through your heel, squeeze at "
+               "the top, lower under control. This replaces the back extension: same "
+               "hip-hinge muscles, without the machine you don't fit.",
+        "jump": 5,
+    },
 ]
 
 MACHINES_BY_SLUG = {m["slug"]: m for m in MACHINES}
@@ -199,49 +282,52 @@ MACHINES_BY_SLUG = {m["slug"]: m for m in MACHINES}
 ROTATION = [
     {
         "day": 1,
-        "title": "Push: Chest, Shoulders, Triceps",
-        "focus": "Everything that moves weight away from you",
+        "title": "Push A: Chest, Shoulders, Triceps",
+        "focus": "Everything that moves weight away from you, plus abs",
         "machines": ["chest-press", "pectoral-fly", "shoulder-press",
-                     "triceps-press", "triceps-extension"],
+                     "triceps-press", "ab-crunch"],
     },
     {
         "day": 2,
-        "title": "Pull: Back, Rear Delts, Biceps",
-        "focus": "Everything that pulls weight toward you",
-        "machines": ["pull-down", "row-press", "rear-deltoid-fly", "biceps-curl"],
+        "title": "Pull A: Back, Rear Delts, Biceps",
+        "focus": "Everything that pulls weight toward you, plus obliques",
+        "machines": ["pull-down", "row-press", "rear-deltoid-fly",
+                     "biceps-curl", "torso-rotation"],
     },
     {
         "day": 3,
-        "title": "Legs & Lower Back",
-        "focus": "Front and back of the legs, plus the muscles that hold you upright",
+        "title": "Legs A: Quads Lead",
+        "focus": "Front of the legs first while you're fresh, then the back",
         "machines": ["seated-leg-press", "leg-extension", "seated-leg-curl",
-                     "calf-extension", "back-extension"],
+                     "calf-extension", "glute-kickback"],
     },
     {
         "day": 4,
-        "title": "Push: Round Two",
-        "focus": "The same pattern as day 1, slightly shorter -- frequency is what builds it",
-        "machines": ["chest-press", "pectoral-fly", "shoulder-press", "triceps-press"],
+        "title": "Push B: Dips Lead",
+        "focus": "Same muscles as day 1, different first movement",
+        "machines": ["assisted-dip", "chest-press", "shoulder-press",
+                     "triceps-extension", "ab-crunch"],
     },
     {
         "day": 5,
-        "title": "Pull: Round Two",
-        "focus": "Second pulling session of the week",
-        "machines": ["pull-down", "row-press", "rear-deltoid-fly", "biceps-curl"],
+        "title": "Pull B: Pull-Ups Lead",
+        "focus": "Same muscles as day 2, with the pull-up machine in front",
+        "machines": ["assisted-pull-up", "row-press", "rear-deltoid-fly",
+                     "biceps-curl", "torso-rotation"],
     },
     {
         "day": 6,
-        "title": "Legs: Hamstring Lead",
-        "focus": "Legs again, starting with the back of them so they get the fresh effort",
+        "title": "Legs B: Hamstrings Lead",
+        "focus": "Back of the legs first this time so they get the fresh effort",
         "machines": ["seated-leg-curl", "seated-leg-press", "leg-extension",
-                     "calf-extension", "back-extension"],
+                     "calf-extension", "glute-kickback"],
     },
     {
         "day": 7,
-        "title": "Catch-Up Day",
-        "focus": "A lighter day for the small muscles that get shortchanged everywhere else",
-        "machines": ["shoulder-press", "rear-deltoid-fly", "seated-leg-curl",
-                     "biceps-curl", "calf-extension"],
+        "title": "Core & Small Muscles",
+        "focus": "The fast-recovering stuff that fits between the big days -- lighter, quicker",
+        "machines": ["ab-crunch", "torso-rotation", "hip-abduction",
+                     "rear-deltoid-fly", "biceps-curl"],
     },
 ]
 
@@ -295,6 +381,24 @@ GLOSSARY = [
                 "weight should be heavy enough that stopping at 10 feels earned, but "
                 "light enough that you could reach 12. Hit 12 on every set and it's "
                 "time to add weight.",
+    },
+    {
+        "term": "Assisted machine",
+        "short": "The number is how much it helps you",
+        "long": "On the pull-up and dip machine you kneel on a pad that pushes UP, "
+                "taking some of your bodyweight off the move. So the weight you set is "
+                "the amount of help, and progress means a LOWER number, not a higher "
+                "one. The app tracks this backwards for you: when you hit your reps, it "
+                "tells you to take help away.",
+    },
+    {
+        "term": "Recovery window",
+        "short": "48 hours for big muscles, less for small ones",
+        "long": "Chest, back and legs need about two days between hard sessions, which "
+                "is why push, pull and legs never land on consecutive days here. Abs, "
+                "rear delts, hip abductors and biceps are small and recover in about a "
+                "day -- those are the only muscles the plan ever puts on back-to-back "
+                "days, and only on the lighter core day.",
     },
     {
         "term": "Ramping up",
